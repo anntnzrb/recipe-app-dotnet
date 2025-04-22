@@ -1,4 +1,4 @@
-namespace asp_demo.Models
+namespace RecipeBack.Models
 {
     public class Recipe
     {

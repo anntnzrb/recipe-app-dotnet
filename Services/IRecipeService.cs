@@ -1,6 +1,6 @@
-using asp_demo.Models;
+using RecipeBack.Models;
 
-namespace asp_demo.Services
+namespace RecipeBack.Services
 {
   public interface IRecipeService
   {

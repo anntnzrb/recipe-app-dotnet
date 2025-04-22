@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using asp_demo.Models;
+using RecipeBack.Models;
 using Microsoft.EntityFrameworkCore;
-using asp_demo.Services;
+using RecipeBack.Services;
 
-namespace asp_demo.Controllers
+namespace RecipeBack.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

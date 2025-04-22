@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using asp_demo.Data;
+using RecipeBack.Data;
 
 #nullable disable
 
-namespace asp_demo.Migrations
+namespace RecipeBack.Migrations
 {
     [DbContext(typeof(RecipeContext))]
     partial class RecipeContextModelSnapshot : ModelSnapshot
@@ -21,7 +21,7 @@ namespace asp_demo.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("asp_demo.Models.Recipe", b =>
+            modelBuilder.Entity("RecipeBack.Models.Recipe", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -40,7 +40,7 @@ namespace asp_demo.Migrations
                     b.ToTable("Recipes");
                 });
 
-            modelBuilder.Entity("asp_demo.Models.RecipeIngredient", b =>
+            modelBuilder.Entity("RecipeBack.Models.RecipeIngredient", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -64,16 +64,16 @@ namespace asp_demo.Migrations
                     b.ToTable("RecipeIngredients");
                 });
 
-            modelBuilder.Entity("asp_demo.Models.RecipeIngredient", b =>
+            modelBuilder.Entity("RecipeBack.Models.RecipeIngredient", b =>
                 {
-                    b.HasOne("asp_demo.Models.Recipe", null)
+                    b.HasOne("RecipeBack.Models.Recipe", null)
                         .WithMany("Ingredients")
                         .HasForeignKey("RecipeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("asp_demo.Models.Recipe", b =>
+            modelBuilder.Entity("RecipeBack.Models.Recipe", b =>
                 {
                     b.Navigation("Ingredients");
                 });

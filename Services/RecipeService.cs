@@ -1,10 +1,8 @@
-using asp_demo.Data;
-using asp_demo.Models;
+using RecipeBack.Data;
+using RecipeBack.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace asp_demo.Services
+namespace RecipeBack.Services
 {
   public class RecipeService(RecipeContext context) : IRecipeService
   {
@@ -90,7 +88,7 @@ namespace asp_demo.Services
 
       await _context.SaveChangesAsync();
 
-      // Return the added ingredient with its generated ID
+      // return the added ingredient with its generated id
       return ingredient;
     }
 

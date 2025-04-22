@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using asp_demo.Data;
+using RecipeBack.Data;
+using RecipeBack.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +9,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<RecipeContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<asp_demo.Services.IRecipeService, asp_demo.Services.RecipeService>();
+builder.Services.AddScoped<IRecipeService, RecipeService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

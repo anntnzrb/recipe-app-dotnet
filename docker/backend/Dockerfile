@@ -16,4 +16,4 @@ COPY --from=build /src/out .
 
 EXPOSE 80
 
-ENTRYPOINT ["dotnet", "asp-demo.dll"]
+ENTRYPOINT ["dotnet", "recipe-back.dll"]

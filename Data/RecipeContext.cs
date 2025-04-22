@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using asp_demo.Models;
+using RecipeBack.Models;
 
-namespace asp_demo.Data
+namespace RecipeBack.Data
 {
     public class RecipeContext(DbContextOptions<RecipeContext> options) : DbContext(options)
     {

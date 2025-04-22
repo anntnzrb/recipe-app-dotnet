@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace asp_demo.Migrations
+namespace RecipeBack.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreateCorrected : Migration
