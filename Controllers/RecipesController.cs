@@ -31,7 +31,7 @@ namespace asp_demo.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Recipe>> CreateRecipe(Recipe recipe)
+        public async Task<ActionResult<Recipe>> CreateRecipe([FromBody] Recipe recipe)
         {
             if (string.IsNullOrEmpty(recipe.Name) || string.IsNullOrEmpty(recipe.Description))
             {
@@ -45,7 +45,7 @@ namespace asp_demo.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRecipe(int id, Recipe recipe)
+        public async Task<IActionResult> UpdateRecipe(int id, [FromBody] Recipe recipe)
         {
             if (id != recipe.Id)
             {
