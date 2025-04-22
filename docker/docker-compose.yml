@@ -4,7 +4,7 @@ services:
       context: ..
       dockerfile: docker/backend/Dockerfile
     ports:
-      - "8080:8080"
+      - "5182:8080"
     depends_on:
       - db
     environment:
