@@ -1,0 +1,117 @@
+using asp_demo.Data;
+using asp_demo.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace asp_demo.Services
+{
+  public class RecipeService(RecipeContext context) : IRecipeService
+  {
+    private readonly RecipeContext _context = context;
+
+    public async Task<IEnumerable<Recipe>> GetAllRecipesAsync()
+    {
+      // Reason: Eager load ingredients to prevent N+1 queries when accessing recipe details later.
+      return await _context.Recipes.Include(r => r.Ingredients).ToListAsync();
+    }
+
+    public async Task<Recipe?> GetRecipeByIdAsync(int id)
+    {
+      // Reason: Eager load ingredients for the specific recipe being requested.
+      return await _context.Recipes.Include(r => r.Ingredients).FirstOrDefaultAsync(r => r.Id == id);
+    }
+
+    public async Task<Recipe> CreateRecipeAsync(Recipe recipe)
+    {
+      _context.Recipes.Add(recipe);
+      await _context.SaveChangesAsync();
+      return recipe;
+    }
+
+    public async Task<bool> UpdateRecipeAsync(int id, Recipe recipe)
+    {
+      var existingRecipe = await _context.Recipes.FirstOrDefaultAsync(r => r.Id == id);
+
+      if (existingRecipe == null)
+      {
+        return false; // indicates recipe not found
+      }
+
+      existingRecipe.Name = recipe.Name;
+      existingRecipe.Description = recipe.Description;
+
+      try
+      {
+        await _context.SaveChangesAsync();
+        return true; // success
+      }
+      catch (DbUpdateConcurrencyException)
+      {
+        // check if the recipe still exists after the concurrency exception
+        if (!await RecipeExistsAsync(id))
+        {
+          return false; // indicates recipe not found due to concurrency delete
+        }
+        else
+        {
+          throw; // Re-throw if it exists but another concurrency issue occurred
+        }
+      }
+    }
+
+    public async Task<bool> DeleteRecipeAsync(int id)
+    {
+      var recipe = await _context.Recipes.FindAsync(id);
+
+      if (recipe == null)
+      {
+        return false; // indicates recipe not found
+      }
+
+      _context.Recipes.Remove(recipe);
+      await _context.SaveChangesAsync();
+      return true; // success
+    }
+
+    public async Task<RecipeIngredient?> AddIngredientToRecipeAsync(int recipeId, RecipeIngredient ingredient)
+    {
+      var recipe = await _context.Recipes.Include(r => r.Ingredients).FirstOrDefaultAsync(r => r.Id == recipeId);
+
+      if (recipe == null)
+      {
+        return null; // indicates recipe not found
+      }
+
+      ingredient.RecipeId = recipeId; // ensures foreign key is set
+
+      recipe.Ingredients ??= [];
+      recipe.Ingredients.Add(ingredient);
+
+      await _context.SaveChangesAsync();
+
+      // Return the added ingredient with its generated ID
+      return ingredient;
+    }
+
+    public async Task<bool> DeleteIngredientFromRecipeAsync(int recipeId, int ingredientId)
+    {
+      var ingredientToRemove = await _context.RecipeIngredients.FirstOrDefaultAsync(i => i.RecipeId == recipeId && i.Id == ingredientId);
+
+      if (ingredientToRemove == null)
+      {
+        return false; // indicates ingredient not found
+      }
+
+      _context.RecipeIngredients.Remove(ingredientToRemove);
+      await _context.SaveChangesAsync();
+      return true; // success
+    }
+
+    // Helper method to check existence, used for concurrency handling
+    private async Task<bool> RecipeExistsAsync(int id)
+    {
+      return await _context.Recipes.AnyAsync(e => e.Id == id);
+    }
+  }
+}

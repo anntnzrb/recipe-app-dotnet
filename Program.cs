@@ -8,6 +8,8 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<RecipeContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<asp_demo.Services.IRecipeService, asp_demo.Services.RecipeService>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

@@ -1,26 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
 using asp_demo.Models;
 using Microsoft.EntityFrameworkCore;
-using asp_demo.Data;
+using asp_demo.Services;
 
 namespace asp_demo.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class RecipesController(RecipeContext context) : ControllerBase
+    public class RecipesController(IRecipeService recipeService) : ControllerBase
     {
-        private readonly RecipeContext _context = context;
+        private readonly IRecipeService _recipeService = recipeService;
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Recipe>>> GetRecipes()
         {
-            return await _context.Recipes.Include(r => r.Ingredients).ToListAsync();
+            var recipes = await _recipeService.GetAllRecipesAsync();
+            return Ok(recipes);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Recipe>> GetRecipe(int id)
         {
-            var recipe = await _context.Recipes.Include(r => r.Ingredients).FirstOrDefaultAsync(r => r.Id == id);
+            var recipe = await _recipeService.GetRecipeByIdAsync(id);
 
             if (recipe == null)
             {
@@ -38,10 +39,9 @@ namespace asp_demo.Controllers
                 return BadRequest("Recipe name and description are required.");
             }
 
-            _context.Recipes.Add(recipe);
-            await _context.SaveChangesAsync();
+            var createdRecipe = await _recipeService.CreateRecipeAsync(recipe);
 
-            return CreatedAtAction(nameof(GetRecipe), new { id = recipe.Id }, recipe);
+            return CreatedAtAction(nameof(GetRecipe), new { id = createdRecipe.Id }, createdRecipe);
         }
 
         [HttpPut("{id}")]
@@ -57,97 +57,64 @@ namespace asp_demo.Controllers
                 return BadRequest("Recipe name and description are required.");
             }
 
-            var existingRecipe = await _context.Recipes.FirstOrDefaultAsync(r => r.Id == id);
-
-            if (existingRecipe == null)
-            {
-                return NotFound();
-            }
-
-            existingRecipe.Name = recipe.Name;
-            existingRecipe.Description = recipe.Description;
-
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!RecipeExists(id))
+                var success = await _recipeService.UpdateRecipeAsync(id, recipe);
+                if (!success)
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw;
             }
 
-            return NoContent();
+            return NoContent(); // success
         }
-
-        private bool RecipeExists(int id)
-        {
-            return _context.Recipes.Any(e => e.Id == id);
-        }
-
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRecipe(int id)
         {
-            var recipe = await _context.Recipes.FindAsync(id);
+            var success = await _recipeService.DeleteRecipeAsync(id);
 
-            if (recipe == null)
+            if (!success)
             {
                 return NotFound();
             }
 
-            _context.Recipes.Remove(recipe); // Mark for removal
-            await _context.SaveChangesAsync(); // Save changes (will cascade delete ingredients)
-
-            return NoContent();
+            return NoContent(); // success
         }
 
         [HttpPost("{id}/ingredients")]
         public async Task<ActionResult<RecipeIngredient>> AddIngredientToRecipe(int id, RecipeIngredient ingredient)
         {
-            var recipe = await _context.Recipes.Include(r => r.Ingredients).FirstOrDefaultAsync(r => r.Id == id);
-
-            if (recipe == null)
+            if (string.IsNullOrEmpty(ingredient.IngredientName) || string.IsNullOrEmpty(ingredient.Quantity)) // Corrected property name
             {
-                return NotFound();
+                return BadRequest("Ingredient name and quantity are required.");
             }
 
-            ingredient.RecipeId = id;
+            var addedIngredient = await _recipeService.AddIngredientToRecipeAsync(id, ingredient);
 
-            if (recipe.Ingredients == null)
+            if (addedIngredient == null)
             {
-                recipe.Ingredients = new List<RecipeIngredient>();
+                return NotFound("Recipe not found.");
             }
-            recipe.Ingredients.Add(ingredient);
 
-            await _context.SaveChangesAsync();
-
-            var addedIngredient = await _context.RecipeIngredients.FindAsync(ingredient.Id);
-
-
-            return CreatedAtAction(nameof(GetRecipe), new { id = recipe.Id }, addedIngredient);
+            return CreatedAtAction(nameof(GetRecipe), new { id = id }, addedIngredient);
         }
 
         [HttpDelete("{recipeId}/ingredients/{ingredientId}")]
         public async Task<IActionResult> DeleteIngredientFromRecipe(int recipeId, int ingredientId)
         {
-            var ingredientToRemove = await _context.RecipeIngredients.FirstOrDefaultAsync(i => i.RecipeId == recipeId && i.Id == ingredientId);
+            var success = await _recipeService.DeleteIngredientFromRecipeAsync(recipeId, ingredientId);
 
-            if (ingredientToRemove == null)
+            if (!success)
             {
-                return NotFound();
+                return NotFound("Recipe or Ingredient not found."); // returns false if recipe or ingredient not found
             }
 
-            _context.RecipeIngredients.Remove(ingredientToRemove);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return NoContent(); // success
         }
     }
 }
