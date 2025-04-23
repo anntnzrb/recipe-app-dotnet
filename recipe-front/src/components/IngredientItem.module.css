@@ -1,0 +1,34 @@
+/* Styling for IngredientItem */
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  background-color: #f7fafc;
+  /* Light gray background */
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+}
+
+.text {
+  color: #4a5568;
+  /* Gray text */
+}
+
+.deleteButton {
+  margin-left: 1rem;
+  color: #e53e3e;
+  /* Red */
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  /* Make the 'x' slightly larger */
+  line-height: 1;
+  padding: 0.2rem;
+}
+
+.deleteButton:hover {
+  color: #c53030;
+}

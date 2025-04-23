@@ -1,0 +1,38 @@
+/* Styling for the main Recipes page */
+.pageContainer {
+  max-width: 850px;
+  /* Slightly wider to accommodate button */
+  margin: 1rem auto;
+  padding: 1rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #333;
+}
+
+.createLink {
+  display: inline-block;
+  padding: 0.7rem 1.3rem;
+  background-color: #3182ce;
+  /* Blue */
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.createLink:hover {
+  background-color: #2b6cb0;
+}

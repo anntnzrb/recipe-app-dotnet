@@ -29,15 +29,58 @@ namespace RecipeBack.Services
 
     public async Task<bool> UpdateRecipeAsync(int id, Recipe recipe)
     {
-      var existingRecipe = await _context.Recipes.FirstOrDefaultAsync(r => r.Id == id);
+      // FIX: Need to include existing ingredients to compare
+      var existingRecipe = await _context.Recipes
+                                      .Include(r => r.Ingredients) // Eager load current ingredients
+                                      .FirstOrDefaultAsync(r => r.Id == id);
+
 
       if (existingRecipe == null)
       {
         return false; // indicates recipe not found
       }
 
+      // Update basic properties
       existingRecipe.Name = recipe.Name;
       existingRecipe.Description = recipe.Description;
+
+      // --- START: Add logic to handle ingredient updates ---
+
+      // Simple approach: Replace all existing ingredients with the new list
+      // This handles adds, updates (by replacing), and deletes (by not including them)
+
+      // 1. Remove existing ingredients tracked by the context for this recipe
+      if (existingRecipe.Ingredients != null)
+      {
+        _context.RecipeIngredients.RemoveRange(existingRecipe.Ingredients);
+      }
+
+      // 2. Add the ingredients from the incoming 'recipe' object
+      //    Ensure the RecipeId is set correctly for the relationship.
+      if (recipe.Ingredients != null)
+      {
+        foreach (var incomingIngredient in recipe.Ingredients)
+        {
+          // We ignore the ID sent from the client (which was 0 for new ones)
+          // and let EF Core handle creating new ingredient records.
+          // We MUST set the RecipeId to link it correctly.
+          _context.RecipeIngredients.Add(new RecipeIngredient
+          {
+            IngredientName = incomingIngredient.IngredientName, // Use correct property name
+            Quantity = incomingIngredient.Quantity,
+            RecipeId = existingRecipe.Id // Link to the existing recipe
+          });
+        }
+      }
+      // No need to explicitly assign to existingRecipe.Ingredients if using AddRange/RemoveRange
+      // else
+      // {
+      //     existingRecipe.Ingredients = new List<RecipeIngredient>(); // Ensure it's an empty list if null was sent
+      // }
+
+
+      // --- END: Add logic to handle ingredient updates ---
+
 
       try
       {
