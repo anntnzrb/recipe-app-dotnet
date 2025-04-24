@@ -5,7 +5,7 @@ Aplicación Frontend para la Gestión de Recetas, construida con Next.js.
 ## Tecnologías Utilizadas
 
 *   Next.js (v15.3.1)
-*   Deno (v2.2.11)
+*   Node v20
 *   TypeScript
 
 ## Ejecución
