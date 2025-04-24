@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Ingredient } from '../types';
 import IngredientItem from './IngredientItem';
-import styles from './IngredientList.module.css'; // Import CSS Module
 
 // Reason: Displays a list of ingredients for a recipe.
 // Uses IngredientItem for rendering each ingredient.

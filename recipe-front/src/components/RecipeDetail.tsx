@@ -1,7 +1,7 @@
 'use client'; // Need client component for state, effects, event handlers
 
 import React, { useState } from 'react'; // Import useState
-import type { Recipe, Ingredient } from '../types';
+import type { Recipe } from '../types';
 import { useRouter } from 'next/navigation'; // For redirecting after delete
 import { recipeService } from '@/services/recipeService'; // For API call
 import styles from './RecipeDetail.module.css'; // Import CSS Module
