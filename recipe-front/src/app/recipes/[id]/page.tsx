@@ -7,9 +7,9 @@ import type { Recipe } from '@/types';
 // Reason: This dynamic route page fetches and displays details for a specific recipe based on the ID in the URL.
 
 interface RecipePageProps {
-  params: {
+  params: Promise<{
     id: string; // URL parameters are always strings initially
-  };
+  }>;
 }
 
 // This is a Server Component

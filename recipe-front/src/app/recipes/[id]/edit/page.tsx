@@ -8,9 +8,9 @@ import type { Recipe } from '@/types';
 // Fetches the recipe data and renders the RecipeForm in 'edit' mode.
 
 interface EditRecipePageProps {
-  params: {
+  params: Promise<{
     id: string; // URL parameters are always strings initially
-  };
+  }>;
 }
 
 // This is a Server Component to fetch initial data
