@@ -13,26 +13,21 @@ services:
       - recipe-net
 
   frontend:
-    # This service uses the Dockerfile created in recipe-front/docker/Dockerfile
     build:
       context: ./recipe-front
       dockerfile: docker/Dockerfile
     ports:
-      - "3000:3000" # Standard Next.js port
+      - "3000:3000"
     depends_on:
       - backend
     networks:
       - recipe-net
     environment:
-      # Point to the backend service within the Docker network
-      - NEXT_PUBLIC_API_URL=http://localhost:5182/api/Recipes # Use host-accessible URL for client-side fetches
-      - INTERNAL_API_URL=http://backend:8080/api/Recipes # Use service name for server-side fetches within Docker
+      - NEXT_PUBLIC_API_URL=http://localhost:5182/api/Recipes
+      - INTERNAL_API_URL=http://backend:8080/api/Recipes
     volumes:
-      # Mount local source code into the container for hot-reloading
       - ./recipe-front:/app
-      # Use a named volume for .next to persist cache between runs
       - frontend_next:/app/.next
-      # Add an anonymous volume for node_modules to prevent host mount issues
       - /app/node_modules
 
   db:
@@ -50,7 +45,7 @@ services:
 
 volumes:
   sqldata:
-  frontend_next: # Named volume for frontend .next cache
+  frontend_next:
 
 networks:
   recipe-net:
