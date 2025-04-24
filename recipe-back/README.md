@@ -1,23 +1,17 @@
 # Backend de Recetas (recipe-back)
 
-API Backend para la aplicación de Gestión de Recetas.
+API Backend para la aplicación de Gestión de Recetas, construida con ASP.NET Core.
 
 ## Tecnologías Utilizadas
 
-* ASP.NET Core 8 (usando .NET 8 SDK)
-* SQL Server 2022 (vía Entity Framework Core)
-
-## Prerrequisitos
-
-* .NET 8 SDK instalado.
-* SQL Server 2022 en ejecución y configurado para Autenticación de Windows (`Trusted_Connection=True`). Una base de datos llamada `RecipeDB` será creada/migrada automáticamente al iniciar.
+*   ASP.NET Core 8 (usando .NET 8 SDK)
+*   Entity Framework Core 8
+*   SQL Server 2022
 
 ## Ejecución
 
-Desde el directorio `recipe-back`, ejecuta:
+### Docker
 
-```bash
-dotnet watch run
-```
+Este backend está diseñado para ejecutarse junto con el frontend y la base de datos usando Docker Compose. Las instrucciones para ejecutar la aplicación completa se encuentran en el `README.md` principal del proyecto (en el directorio raíz).
 
-La API estará disponible en `http://localhost:5182`.
+Al ejecutar `docker-compose up` desde la raíz del proyecto, este servicio backend se iniciará automáticamente. Se conectará al servicio de base de datos (`db`) dentro de la red Docker usando la cadena de conexión proporcionada en `docker-compose.yml`. El frontend podrá acceder a esta API a través de la red Docker.
