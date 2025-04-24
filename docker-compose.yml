@@ -1,0 +1,57 @@
+services:
+  backend:
+    build:
+      context: ./recipe-back
+      dockerfile: docker/Dockerfile
+    ports:
+      - "5182:8080"
+    depends_on:
+      - db
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db;Database=RecipeDB;User ID=sa;Password=recipe-back2025;TrustServerCertificate=True;
+    networks:
+      - recipe-net
+
+  frontend:
+    # This service uses the Dockerfile created in recipe-front/docker/Dockerfile
+    build:
+      context: ./recipe-front
+      dockerfile: docker/Dockerfile
+    ports:
+      - "3000:3000" # Standard Next.js port
+    depends_on:
+      - backend
+    networks:
+      - recipe-net
+    environment:
+      # Point to the backend service within the Docker network
+      - NEXT_PUBLIC_API_URL=http://localhost:5182/api/Recipes # Use host-accessible URL for client-side fetches
+      - INTERNAL_API_URL=http://backend:8080/api/Recipes # Use service name for server-side fetches within Docker
+    volumes:
+      # Mount local source code into the container for hot-reloading
+      - ./recipe-front:/app
+      # Use a named volume for .next to persist cache between runs
+      - frontend_next:/app/.next
+      # Add an anonymous volume for node_modules to prevent host mount issues
+      - /app/node_modules
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=recipe-back2025
+      - MSSQL_PID=Developer
+    volumes:
+      - sqldata:/var/opt/mssql
+    networks:
+      - recipe-net
+
+volumes:
+  sqldata:
+  frontend_next: # Named volume for frontend .next cache
+
+networks:
+  recipe-net:
+    driver: bridge

@@ -3,8 +3,20 @@ import type { Recipe, Ingredient } from '../types';
 // Reason: Centralizes API communication logic, making components cleaner
 // and API interactions easier to manage and update. Uses native fetch.
 
-// TODO: Replace with environment variable for flexibility - Done!
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5182/api/Recipes'; // Use env var, fallback to default
+// Determine the correct API base URL based on the environment (server-side vs client-side)
+const getBaseUrl = (): string => {
+  const isServer = typeof window === 'undefined';
+  // Server-side: Use the internal Docker network URL (service name)
+  const serverUrl = process.env.INTERNAL_API_URL || 'http://backend:8080/api/Recipes'; // Fallback for server
+  // Client-side: Use the publicly exposed URL (localhost)
+  const clientUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5182/api/Recipes'; // Fallback for client
+
+  // Optional: Add a console log for debugging which URL is being used
+  // console.log(`[recipeService] Using API URL: ${isServer ? serverUrl : clientUrl} (isServer: ${isServer})`);
+
+  return isServer ? serverUrl : clientUrl;
+};
+
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -25,18 +37,21 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
 export const recipeService = {
   async getAllRecipes(): Promise<Recipe[]> {
-    const response = await fetch(API_BASE_URL);
+    const baseUrl = getBaseUrl();
+    const response = await fetch(baseUrl);
     return handleResponse<Recipe[]>(response);
   },
 
   async getRecipeById(id: number): Promise<Recipe> {
-    const response = await fetch(`${API_BASE_URL}/${id}`);
+    const baseUrl = getBaseUrl();
+    const response = await fetch(`${baseUrl}/${id}`);
     return handleResponse<Recipe>(response);
   },
 
   // Note: Backend POST expects only name and description according to PLANNING.md
   async createRecipe(recipeData: Pick<Recipe, 'name' | 'description'>): Promise<Recipe> {
-    const response = await fetch(API_BASE_URL, {
+    const baseUrl = getBaseUrl();
+    const response = await fetch(baseUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(recipeData),
@@ -46,7 +61,8 @@ export const recipeService = {
 
   // Note: Backend PUT expects the complete updated recipe object
   async updateRecipe(id: number, recipeData: Recipe): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
+    const baseUrl = getBaseUrl();
+    const response = await fetch(`${baseUrl}/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(recipeData),
@@ -56,7 +72,8 @@ export const recipeService = {
   },
 
   async deleteRecipe(id: number): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
+    const baseUrl = getBaseUrl();
+    const response = await fetch(`${baseUrl}/${id}`, {
       method: 'DELETE',
     });
     // DELETE often returns 204 No Content
@@ -65,7 +82,8 @@ export const recipeService = {
 
   // Note: Backend POST expects ingredient details
   async addIngredient(recipeId: number, ingredientData: Omit<Ingredient, 'id' | 'recipeId'>): Promise<Ingredient> {
-    const response = await fetch(`${API_BASE_URL}/${recipeId}/ingredients`, {
+    const baseUrl = getBaseUrl();
+    const response = await fetch(`${baseUrl}/${recipeId}/ingredients`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(ingredientData),
@@ -74,7 +92,8 @@ export const recipeService = {
   },
 
   async deleteIngredient(recipeId: number, ingredientId: number): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/${recipeId}/ingredients/${ingredientId}`, {
+    const baseUrl = getBaseUrl();
+    const response = await fetch(`${baseUrl}/${recipeId}/ingredients/${ingredientId}`, {
       method: 'DELETE',
     });
     // DELETE often returns 204 No Content

@@ -48,7 +48,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Disable HTTPS redirection for Docker internal communication
 
 // Enable CORS middleware - MUST be before MapControllers
 app.UseCors("AllowFrontend");
