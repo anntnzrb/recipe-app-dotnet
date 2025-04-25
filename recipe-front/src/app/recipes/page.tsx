@@ -12,6 +12,8 @@ import { PlusCircle } from 'lucide-react'; // Import an icon for create button
 // Reason: This page fetches and displays the list of all recipes using Tailwind and shadcn/ui.
 
 // This is a Server Component
+export const dynamic = 'force-dynamic';
+
 async function RecipesPage() {
   let recipes: Recipe[] = [];
   let error: string | null = null;
