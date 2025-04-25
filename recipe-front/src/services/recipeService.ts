@@ -5,16 +5,16 @@ import type { Recipe, Ingredient } from '../types';
 
 // Determine the correct API base URL based on the environment (server-side vs client-side)
 const getBaseUrl = (): string => {
+  // Prioritize NEXT_PUBLIC_API_URL for local development, fallback to internal for Docker
+  const clientOrLocalUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5182/api/Recipes';
+  const serverUrl = process.env.INTERNAL_API_URL || clientOrLocalUrl; // Use client/local as fallback for server if internal not set
+
   const isServer = typeof window === 'undefined';
-  // Server-side: Use the internal Docker network URL (service name)
-  const serverUrl = process.env.INTERNAL_API_URL || 'http://backend:8080/api/Recipes'; // Fallback for server
-  // Client-side: Use the publicly exposed URL (localhost)
-  const clientUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5182/api/Recipes'; // Fallback for client
 
   // Optional: Add a console log for debugging which URL is being used
-  // console.log(`[recipeService] Using API URL: ${isServer ? serverUrl : clientUrl} (isServer: ${isServer})`);
+  // console.log(`[recipeService] Using API URL: ${isServer ? serverUrl : clientOrLocalUrl} (isServer: ${isServer})`);
 
-  return isServer ? serverUrl : clientUrl;
+  return isServer ? serverUrl : clientOrLocalUrl;
 };
 
 
@@ -38,7 +38,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
 export const recipeService = {
   async getAllRecipes(): Promise<Recipe[]> {
     const baseUrl = getBaseUrl();
-    const response = await fetch(baseUrl);
+    const response = await fetch(baseUrl, { cache: 'no-store' });
     return handleResponse<Recipe[]>(response);
   },
 
