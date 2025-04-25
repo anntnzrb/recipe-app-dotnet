@@ -447,3 +447,4 @@ next-env.d.ts
 
 # Ignore Next.js build output specifically for recipe-front
 recipe-front/.next/
+external-front/
