@@ -36,9 +36,13 @@ async function handleResponse<T>(response: Response): Promise<T> {
 }
 
 export const recipeService = {
-  async getAllRecipes(): Promise<Recipe[]> {
+  async getAllRecipes(name?: string): Promise<Recipe[]> {
     const baseUrl = getBaseUrl();
-    const response = await fetch(baseUrl, { cache: 'no-store' });
+    let url = baseUrl;
+    if (name && name.trim() !== '') {
+      url += `?name=${encodeURIComponent(name.trim())}`;
+    }
+    const response = await fetch(url, { cache: 'no-store' });
     return handleResponse<Recipe[]>(response);
   },
 

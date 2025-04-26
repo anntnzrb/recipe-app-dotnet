@@ -1,63 +1,107 @@
-import React from 'react';
+'use client'; // Convert to Client Component
+
+import React, { useState, useEffect } from 'react';
 import RecipeList from '@/components/RecipeList';
 import { recipeService } from '@/services/recipeService';
 import type { Recipe } from '@/types';
 import Link from 'next/link';
-// Removed CSS Module import: import styles from './page.module.css';
-import { Button } from "@/components/ui/button"; // Import Button
-// Consider Alert for error display
-// import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { PlusCircle } from 'lucide-react'; // Import an icon for create button
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input"; // Import Input
+import { PlusCircle, Search, Loader2 } from 'lucide-react'; // Import icons
 
-// Reason: This page fetches and displays the list of all recipes using Tailwind and shadcn/ui.
+// Reason: This page fetches and displays recipes, now with client-side search functionality.
+function RecipesPage() {
+  const [inputValue, setInputValue] = useState(''); // Raw input value from the text field
+  const [searchTerm, setSearchTerm] = useState(''); // Debounced search term used for API calls
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [loading, setLoading] = useState(true); // Indicate loading state
+  const [error, setError] = useState<string | null>(null); // Store potential fetch errors
 
-// This is a Server Component
-export const dynamic = 'force-dynamic';
+  // Debounce Effect: Update the `searchTerm` state only after the user stops typing.
+  useEffect(() => {
+    // Set a timer to update the searchTerm after 500ms
+    const handler = setTimeout(() => {
+      setSearchTerm(inputValue);
+    }, 500); // Debounce delay
 
-async function RecipesPage() {
-  let recipes: Recipe[] = [];
-  let error: string | null = null;
+    // Cleanup function: Clear the timer if the inputValue changes before the delay is over
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [inputValue]); // This effect runs whenever the raw input value changes
 
-  try {
-    recipes = await recipeService.getAllRecipes();
-  } catch (err) {
-    console.error("Failed to fetch recipes:", err);
-    // Keep original error message for debugging, but provide a generic user message
-    error = "Ocurrió un error al cargar las recetas."; // Translated generic error
-    recipes = []; // Ensure recipes is an empty array on error
-  }
+  // Fetching Effect: Fetch recipes whenever the debounced `searchTerm` changes.
+  useEffect(() => {
+    async function fetchRecipes() {
+      setLoading(true); // Set loading true before fetching
+      setError(null); // Clear previous errors
+      try {
+        // Call the service function with the debounced search term
+        const fetchedRecipes = await recipeService.getAllRecipes(searchTerm);
+        setRecipes(fetchedRecipes); // Update recipes state
+      } catch (err) {
+        console.error("Failed to fetch recipes:", err);
+        setError("Ocurrió un error al cargar las recetas."); // Set error message
+        setRecipes([]); // Clear recipes on error
+      } finally {
+        setLoading(false); // Set loading false after fetching attempt (success or failure)
+      }
+    }
+
+    fetchRecipes(); // Execute the fetch function
+  }, [searchTerm]); // This effect runs whenever the debounced search term changes
 
   return (
-    // Container padding/margin is handled by the RootLayout now
     <div>
       {/* Header section with title and create button */}
       <div className="flex justify-between items-center mb-6 pb-4 border-b">
-        {/* Added emoji to title and translated */}
         <h1 className="text-2xl font-bold">🍲 Recetas</h1>
-        {/* Use Button component styled as a Link */}
         <Button asChild>
-          {/* Added icon to button and translated */}
           <Link href="/recipes/new">
             <PlusCircle className="mr-2 h-4 w-4" /> Nueva Receta
           </Link>
         </Button>
       </div>
 
-      {/* Error Display */}
-      {error && (
-        <p className="text-sm text-destructive bg-destructive/10 border border-destructive/30 p-3 rounded-md mb-4">
-          {/* Translated error message */}
-          {error}
-        </p>
-        // Alternative using Alert:
-        // <Alert variant="destructive" className="mb-4">
-        //   <AlertTitle>Error</AlertTitle>
-        //   <AlertDescription>{error}</AlertDescription>
-        // </Alert>
+      {/* Search Input */}
+      <div className="mb-6 relative min-h-[40px]"> {/* Ensure minimum height */}
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="search"
+          placeholder="Buscar recetas por nombre..."
+          className="pl-8 w-full" // Padding left for the icon
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)} // Update raw input value on change
+        />
+      </div>
+
+      {/* Loading State Indicator */}
+      {loading && (
+        <div className="flex items-center justify-center py-4">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <span>Cargando recetas...</span>
+        </div>
       )}
 
-      {/* Recipe List Component (already migrated) */}
-      <RecipeList recipes={recipes} />
+      {/* Error Display */}
+      {!loading && error && (
+        <p className="text-sm text-destructive bg-destructive/10 border border-destructive/30 p-3 rounded-md mb-4">
+          {error}
+        </p>
+      )}
+
+      {/* Recipe List or Empty State */}
+      {!loading && !error && (
+        recipes.length > 0
+          ? <RecipeList recipes={recipes} />
+          : (
+            <p className="text-center text-muted-foreground py-4">
+              {searchTerm
+                ? `No se encontraron recetas para "${searchTerm}".`
+                : "No hay recetas disponibles."}
+            </p>
+          )
+      )}
     </div>
   );
 }

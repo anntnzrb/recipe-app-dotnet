@@ -12,9 +12,9 @@ namespace RecipeBack.Controllers
         private readonly IRecipeService _recipeService = recipeService;
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Recipe>>> GetRecipes()
+        public async Task<ActionResult<IEnumerable<Recipe>>> GetRecipes([FromQuery] string? name)
         {
-            var recipes = await _recipeService.GetAllRecipesAsync();
+            var recipes = await _recipeService.GetAllRecipesAsync(name);
             return Ok(recipes);
         }
 

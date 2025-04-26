@@ -4,7 +4,7 @@ namespace RecipeBack.Services
 {
     public interface IRecipeService
     {
-        Task<IEnumerable<Recipe>> GetAllRecipesAsync();
+        Task<IEnumerable<Recipe>> GetAllRecipesAsync(string? name = null);
         Task<Recipe?> GetRecipeByIdAsync(int id);
         Task<Recipe> CreateRecipeAsync(Recipe recipe);
         Task<bool> UpdateRecipeAsync(int id, Recipe recipe);

@@ -8,10 +8,18 @@ namespace RecipeBack.Services
     {
         private readonly RecipeContext _context = context;
 
-        public async Task<IEnumerable<Recipe>> GetAllRecipesAsync()
+        public async Task<IEnumerable<Recipe>> GetAllRecipesAsync(string? name = null)
         {
             // Reason: Eager load ingredients to prevent N+1 queries when accessing recipe details later.
-            return await _context.Recipes.Include(r => r.Ingredients).ToListAsync();
+            var query = _context.Recipes.Include(r => r.Ingredients).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                // Reason: Filter recipes by name, case-insensitive.
+                query = query.Where(r => r.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return await query.ToListAsync();
         }
 
         public async Task<Recipe?> GetRecipeByIdAsync(int id)

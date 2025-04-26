@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className="scroll-smooth"> {/* Changed lang to "es" */}
+    <html lang="es" className="scroll-smooth">
       {/* Apply font variables and base Tailwind classes */}
       <body className={`${inter.variable} ${playfair.variable} font-sans bg-background text-foreground antialiased`}>
         {/* Use flexbox for layout */}
