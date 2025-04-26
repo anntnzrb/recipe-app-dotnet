@@ -103,4 +103,15 @@ export const recipeService = {
     // DELETE often returns 204 No Content
     await handleResponse<void>(response);
   },
+  // Reason: Adds the ability to toggle the favorite status of a recipe via the backend API.
+  async toggleFavorite(id: number): Promise<Recipe> {
+    const baseUrl = getBaseUrl();
+    const response = await fetch(`${baseUrl}/${id}/favorite`, {
+      method: 'PATCH',
+      // No body needed for this toggle operation
+      headers: { 'Content-Type': 'application/json' }, // Still good practice to include
+    });
+    // Assuming the backend returns the updated recipe object after PATCH
+    return handleResponse<Recipe>(response);
+  },
 };

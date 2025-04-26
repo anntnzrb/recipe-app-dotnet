@@ -16,7 +16,7 @@ namespace RecipeBack.Services
             if (!string.IsNullOrWhiteSpace(name))
             {
                 // Reason: Filter recipes by name, case-insensitive.
-                query = query.Where(r => r.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
+                query = query.Where(r => r.Name.ToLower().Contains(name.ToLower()));
             }
 
             return await query.ToListAsync();
@@ -161,6 +161,19 @@ namespace RecipeBack.Services
         private async Task<bool> RecipeExistsAsync(int id)
         {
             return await _context.Recipes.AnyAsync(e => e.Id == id);
+        }
+        public async Task<bool> ToggleFavoriteAsync(int id)
+        {
+            var recipe = await _context.Recipes.FindAsync(id);
+
+            if (recipe == null)
+            {
+                return false; // Recipe not found
+            }
+
+            recipe.IsFavorite = !recipe.IsFavorite; // Invert the status
+            await _context.SaveChangesAsync();
+            return true; // Success
         }
     }
 }

@@ -8,9 +8,11 @@ import RecipeListItem from './RecipeListItem';
 
 interface RecipeListProps {
   recipes: Recipe[];
+  // Add the callback prop definition
+  onFavoriteToggle?: (recipeId: number, newIsFavorite: boolean) => void;
 }
 
-const RecipeList: React.FC<RecipeListProps> = ({ recipes }) => {
+const RecipeList: React.FC<RecipeListProps> = ({ recipes, onFavoriteToggle }) => { // Destructure the prop
   if (!recipes || recipes.length === 0) {
     // Apply Tailwind classes for centering, color, and margin - Translated message
     return <p className="text-center text-muted-foreground mt-8">No se encontraron recetas.</p>;
@@ -21,7 +23,7 @@ const RecipeList: React.FC<RecipeListProps> = ({ recipes }) => {
     <div className="max-w-3xl mx-auto">
       {/* Title is handled by the page */}
       {recipes.map((recipe) => (
-        <RecipeListItem key={recipe.id} recipe={recipe} />
+        <RecipeListItem key={recipe.id} recipe={recipe} onFavoriteToggle={onFavoriteToggle} /> // Pass the prop down
       ))}
     </div>
   );

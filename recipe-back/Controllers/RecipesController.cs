@@ -116,5 +116,17 @@ namespace RecipeBack.Controllers
 
             return NoContent(); // success
         }
+        [HttpPatch("{id}/favorite")]
+        public async Task<IActionResult> ToggleFavorite(int id)
+        {
+            var success = await _recipeService.ToggleFavoriteAsync(id);
+
+            if (!success)
+            {
+                return NotFound("Recipe not found.");
+            }
+
+            return NoContent(); // Success
+        }
     }
 }

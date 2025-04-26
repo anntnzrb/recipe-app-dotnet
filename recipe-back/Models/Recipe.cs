@@ -6,5 +6,6 @@ namespace RecipeBack.Models
         public string? Name { get; set; }
         public string? Description { get; set; }
         public List<RecipeIngredient>? Ingredients { get; set; } = [];
+        public bool IsFavorite { get; set; } = false;
     }
 }

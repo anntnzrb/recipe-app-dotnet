@@ -1,10 +1,10 @@
 'use client'; // Need client component for state, effects, event handlers
 
-import React, { useState } from 'react';
+import React, { useState, MouseEvent } from 'react'; // Added MouseEvent
 import type { Recipe } from '../types';
 import { useRouter } from 'next/navigation';
 import { recipeService } from '@/services/recipeService';
-// Removed CSS Module import: import styles from './RecipeDetail.module.css';
+import { useToast } from "@/hooks/use-toast"; // Import useToast
 import Link from 'next/link';
 import IngredientItem from './IngredientItem';
 import { Button } from "@/components/ui/button"; // Import Button
@@ -24,6 +24,8 @@ const RecipeDetail: React.FC<RecipeDetailProps> = ({ recipe }) => {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isFavorite, setIsFavorite] = useState(recipe?.isFavorite ?? false); // Local state for favorite status
+  const { toast } = useToast(); // Hook for showing notifications
 
   // Handle case where recipe might not be loaded (though parent page should handle this)
   if (!recipe) {
@@ -54,13 +56,58 @@ const RecipeDetail: React.FC<RecipeDetailProps> = ({ recipe }) => {
     }
   };
 
+  // Reason: Handles the click on the favorite star, calls the API, updates local state, and shows feedback.
+  const handleToggleFavorite = async (e: MouseEvent<HTMLSpanElement>) => {
+    e.preventDefault(); // Prevent any potential default behavior if wrapped differently later
+    e.stopPropagation();
+
+    if (!recipe) return; // Should not happen if recipe is loaded
+
+    const newIsFavorite = !isFavorite; // Determine the new state first
+    setIsFavorite(newIsFavorite); // Optimistically update the UI
+
+    try {
+      // Call the API to persist the change. We don't need the return value.
+      await recipeService.toggleFavorite(recipe.id);
+
+      // Show success toast based on the new state
+      toast({
+        title: "Success",
+        description: `Recipe "${recipe.name}" ${newIsFavorite ? 'added to' : 'removed from'} favorites.`,
+      });
+      // Note: No need to call router.refresh() here as the state update handles the UI change.
+    } catch (error) {
+      console.error("Failed to toggle favorite status:", error);
+      // Revert the optimistic update on error
+      setIsFavorite(!newIsFavorite);
+      toast({
+        title: "Error",
+        description: "Could not update favorite status. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+
   return (
     // Use Card component as the main container
     <Card className="max-w-3xl mx-auto my-4">
       <CardHeader>
         <div className="flex justify-between items-start gap-4">
-          {/* Recipe Title */}
-          <CardTitle className="text-2xl font-bold">{recipe.name}</CardTitle>
+          {/* Title and Favorite Star */}
+          <div className="flex items-start gap-3"> {/* Container for title and star */}
+            <CardTitle className="text-2xl font-bold">{recipe.name}</CardTitle>
+            {/* Favorite Indicator */}
+            <span
+              onClick={handleToggleFavorite}
+              className="cursor-pointer text-2xl pt-0.5 text-yellow-500 hover:text-yellow-400 transition-colors" // Adjusted styling
+              title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+              aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+              role="button"
+            >
+              {isFavorite ? '★' : '☆'}
+            </span>
+          </div>
           {/* Action Buttons */}
           <div className="flex gap-2 flex-shrink-0">
             {/* Translated Edit button */}

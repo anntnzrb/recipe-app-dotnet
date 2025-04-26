@@ -45,6 +45,7 @@ using (var scope = app.Services.CreateScope())
                 new() {
                     Name = "Arepas con Queso",
                     Description = "Deliciosas arepas de maíz rellenas de queso derretido, un clásico desayuno o merienda en Colombia y Venezuela.",
+                    IsFavorite = true, // Mark this recipe as favorite
                     Ingredients =
                     [
                         new() { IngredientName = "Harina de maíz precocida", Quantity = "2 tazas" },

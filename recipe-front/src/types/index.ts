@@ -12,5 +12,6 @@ export interface Recipe {
   id: number;
   name: string;
   description: string;
+  isFavorite: boolean; // Added for favorite feature
   ingredients: Ingredient[]; // Embed the list of ingredients
 }

@@ -38,7 +38,9 @@ function RecipesPage() {
       try {
         // Call the service function with the debounced search term
         const fetchedRecipes = await recipeService.getAllRecipes(searchTerm);
-        setRecipes(fetchedRecipes); // Update recipes state
+        // Sort recipes: favorites first
+        const sortedRecipes = fetchedRecipes.sort((a, b) => (b.isFavorite ? 1 : 0) - (a.isFavorite ? 1 : 0));
+        setRecipes(sortedRecipes); // Update recipes state with sorted list
       } catch (err) {
         console.error("Failed to fetch recipes:", err);
         setError("Ocurrió un error al cargar las recetas."); // Set error message
@@ -50,6 +52,20 @@ function RecipesPage() {
 
     fetchRecipes(); // Execute the fetch function
   }, [searchTerm]); // This effect runs whenever the debounced search term changes
+
+  // Reason: Handles the favorite toggle callback from RecipeListItem via RecipeList.
+  // Updates the state reactively and re-sorts the list.
+  const handleToggleFavorite = (recipeId: number, newIsFavorite: boolean) => {
+    setRecipes(prevRecipes => {
+      // Create a new array with the updated favorite status
+      const updatedRecipes = prevRecipes.map(recipe =>
+        recipe.id === recipeId ? { ...recipe, isFavorite: newIsFavorite } : recipe
+      );
+      // Sort the new array: favorites first
+      const sortedRecipes = updatedRecipes.sort((a, b) => (b.isFavorite ? 1 : 0) - (a.isFavorite ? 1 : 0));
+      return sortedRecipes; // Return the new, sorted array for the state update
+    });
+  };
 
   return (
     <div>
@@ -93,7 +109,7 @@ function RecipesPage() {
       {/* Recipe List or Empty State */}
       {!loading && !error && (
         recipes.length > 0
-          ? <RecipeList recipes={recipes} />
+          ? <RecipeList recipes={recipes} onFavoriteToggle={handleToggleFavorite} />
           : (
             <p className="text-center text-muted-foreground py-4">
               {searchTerm
