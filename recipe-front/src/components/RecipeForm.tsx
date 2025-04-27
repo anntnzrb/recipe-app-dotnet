@@ -53,6 +53,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ initialData = null, isEditMode 
           id: initialData.id,
           name,
           description,
+          isFavorite: initialData.isFavorite, // Added missing property
           ingredients: ingredients.map(ing => ({
             ...ing,
             id: ing.id > 0 ? ing.id : 0
