@@ -11,6 +11,6 @@ namespace RecipeBack.Services
         Task<bool> DeleteRecipeAsync(int id);
         Task<RecipeIngredient?> AddIngredientToRecipeAsync(int recipeId, RecipeIngredient ingredient);
         Task<bool> DeleteIngredientFromRecipeAsync(int recipeId, int ingredientId);
-        Task<bool> ToggleFavoriteAsync(int id); // Add method to toggle favorite status
+        Task<bool> ToggleFavoriteAsync(int id);
     }
 }

@@ -15,7 +15,7 @@ builder.Services.AddScoped<IRecipeService, RecipeService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configure CORS
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
@@ -45,7 +45,7 @@ using (var scope = app.Services.CreateScope())
                 new() {
                     Name = "Arepas con Queso",
                     Description = "Deliciosas arepas de maíz rellenas de queso derretido, un clásico desayuno o merienda en Colombia y Venezuela.",
-                    IsFavorite = true, // Mark this recipe as favorite
+                    IsFavorite = true,
                     Ingredients =
                     [
                         new() { IngredientName = "Harina de maíz precocida", Quantity = "2 tazas" },
@@ -111,7 +111,7 @@ if (app.Environment.IsDevelopment())
 
 // app.UseHttpsRedirection(); // Disable HTTPS redirection for Docker internal communication
 
-// Enable CORS middleware - MUST be before MapControllers
+// enable CORS middleware - MUST be before MapControllers
 app.UseCors("AllowFrontend");
 
 app.MapControllers();

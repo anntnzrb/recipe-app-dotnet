@@ -10,7 +10,6 @@ namespace RecipeBack.Services
 
         public async Task<IEnumerable<Recipe>> GetAllRecipesAsync(string? name = null)
         {
-            // Reason: Eager load ingredients to prevent N+1 queries when accessing recipe details later.
             var query = _context.Recipes.Include(r => r.Ingredients).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(name))
@@ -25,7 +24,6 @@ namespace RecipeBack.Services
 
         public async Task<Recipe?> GetRecipeByIdAsync(int id)
         {
-            // Reason: Eager load ingredients for the specific recipe being requested.
             return await _context.Recipes.Include(r => r.Ingredients).FirstOrDefaultAsync(r => r.Id == id);
         }
 
