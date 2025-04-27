@@ -1,5 +1,6 @@
 ### misc ###
 *.pdf
+!report.pdf
 
 ### Csharp ###
 
