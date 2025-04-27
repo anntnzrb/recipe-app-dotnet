@@ -15,8 +15,8 @@ namespace RecipeBack.Services
             if (!string.IsNullOrWhiteSpace(name))
             {
                 string lowerSearchTerm = name.ToLower(); // convert search term to lower case
-                query = query.Where(r => (r.Name != null && r.Name.Contains(lowerSearchTerm, StringComparison.CurrentCultureIgnoreCase)) ||
-                                         (r.Description != null && r.Description.Contains(lowerSearchTerm, StringComparison.CurrentCultureIgnoreCase)));
+                query = query.Where(r => (r.Name != null && r.Name.ToLower().Contains(lowerSearchTerm)) ||
+                                         (r.Description != null && r.Description.ToLower().Contains(lowerSearchTerm)));
             }
 
             return await query.ToListAsync();
