@@ -2,8 +2,8 @@
 
 Este proyecto contiene una aplicación full-stack para gestionar recetas, compuesta por:
 
-*   **Frontend:** Una aplicación Next.js (`recipe-front/`)
-*   **Backend:** Una API ASP.NET Core (`recipe-back/`)
+*   **Frontend:** Aplicación React (Next.js) (`recipe-front/`)
+*   **Backend:** API ASP.NET Core (`recipe-back/`)
 
 La aplicación está configurada para ejecutarse utilizando Docker y Docker Compose.
 
