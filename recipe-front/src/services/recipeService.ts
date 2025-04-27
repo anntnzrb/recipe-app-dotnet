@@ -1,18 +1,11 @@
 import type { Recipe, Ingredient } from '../types';
 
-// Reason: Centralizes API communication logic, making components cleaner
-// and API interactions easier to manage and update. Uses native fetch.
 
-// Determine the correct API base URL based on the environment (server-side vs client-side)
 const getBaseUrl = (): string => {
-  // Prioritize NEXT_PUBLIC_API_URL for local development, fallback to internal for Docker
   const clientOrLocalUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5182/api/Recipes';
-  const serverUrl = process.env.INTERNAL_API_URL || clientOrLocalUrl; // Use client/local as fallback for server if internal not set
+  const serverUrl = process.env.INTERNAL_API_URL || clientOrLocalUrl; // use client/local as fallback for server if internal not set
 
   const isServer = typeof window === 'undefined';
-
-  // Optional: Add a console log for debugging which URL is being used
-  // console.log(`[recipeService] Using API URL: ${isServer ? serverUrl : clientOrLocalUrl} (isServer: ${isServer})`);
 
   return isServer ? serverUrl : clientOrLocalUrl;
 };
@@ -24,14 +17,11 @@ async function handleResponse<T>(response: Response): Promise<T> {
     console.error(`API Error (${response.status}): ${errorText}`);
     throw new Error(`API request failed with status ${response.status}: ${errorText || response.statusText}`);
   }
-  // Handle cases where the response might be empty (e.g., 204 No Content)
   const contentType = response.headers.get("content-type");
   if (contentType && contentType.indexOf("application/json") !== -1) {
     return response.json() as Promise<T>;
   } else {
-    // Return null or an appropriate value for non-JSON responses if needed
-    // Or handle as text if that's expected for some endpoints
-    return null as T; // Adjust as necessary based on API behavior
+    return null as T;
   }
 }
 
@@ -52,7 +42,6 @@ export const recipeService = {
     return handleResponse<Recipe>(response);
   },
 
-  // Note: Backend POST expects only name and description according to PLANNING.md
   async createRecipe(recipeData: Pick<Recipe, 'name' | 'description'>): Promise<Recipe> {
     const baseUrl = getBaseUrl();
     const response = await fetch(baseUrl, {
@@ -63,7 +52,6 @@ export const recipeService = {
     return handleResponse<Recipe>(response);
   },
 
-  // Note: Backend PUT expects the complete updated recipe object
   async updateRecipe(id: number, recipeData: Recipe): Promise<void> {
     const baseUrl = getBaseUrl();
     const response = await fetch(`${baseUrl}/${id}`, {
@@ -71,8 +59,7 @@ export const recipeService = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(recipeData),
     });
-    // PUT often returns 204 No Content or the updated object. Handle accordingly.
-    await handleResponse<void>(response); // Assuming No Content or ignoring returned object
+    await handleResponse<void>(response);
   },
 
   async deleteRecipe(id: number): Promise<void> {
@@ -80,11 +67,9 @@ export const recipeService = {
     const response = await fetch(`${baseUrl}/${id}`, {
       method: 'DELETE',
     });
-    // DELETE often returns 204 No Content
     await handleResponse<void>(response);
   },
 
-  // Note: Backend POST expects ingredient details
   async addIngredient(recipeId: number, ingredientData: Omit<Ingredient, 'id' | 'recipeId'>): Promise<Ingredient> {
     const baseUrl = getBaseUrl();
     const response = await fetch(`${baseUrl}/${recipeId}/ingredients`, {
@@ -100,18 +85,14 @@ export const recipeService = {
     const response = await fetch(`${baseUrl}/${recipeId}/ingredients/${ingredientId}`, {
       method: 'DELETE',
     });
-    // DELETE often returns 204 No Content
     await handleResponse<void>(response);
   },
-  // Reason: Adds the ability to toggle the favorite status of a recipe via the backend API.
   async toggleFavorite(id: number): Promise<Recipe> {
     const baseUrl = getBaseUrl();
     const response = await fetch(`${baseUrl}/${id}/favorite`, {
       method: 'PATCH',
-      // No body needed for this toggle operation
-      headers: { 'Content-Type': 'application/json' }, // Still good practice to include
+      headers: { 'Content-Type': 'application/json' },
     });
-    // Assuming the backend returns the updated recipe object after PATCH
     return handleResponse<Recipe>(response);
   },
 };

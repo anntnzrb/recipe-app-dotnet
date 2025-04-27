@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Removed original :root and @media styles */
+
 
 @layer base {
   :root {

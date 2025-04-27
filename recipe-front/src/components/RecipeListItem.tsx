@@ -1,56 +1,47 @@
-import React, { useState, MouseEvent } from 'react'; // Import useState and MouseEvent
+import React, { useState, MouseEvent } from 'react';
 import type { Recipe } from '../types';
 import Link from 'next/link';
-import { recipeService } from '../services/recipeService'; // Import recipeService
-import { useToast } from "@/hooks/use-toast"; // Import useToast
+import { recipeService } from '../services/recipeService';
+import { useToast } from "@/hooks/use-toast";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
-} from "@/components/ui/card"; // Import Card components
-
-// Reason: Represents a single item in the recipe list using shadcn/ui Card.
-// Encapsulates the display logic for one recipe summary.
+} from "@/components/ui/card";
 
 interface RecipeListItemProps {
   recipe: Recipe;
-  // Add an optional callback to notify the parent list about the change
   onFavoriteToggle?: (recipeId: number, newIsFavorite: boolean) => void;
 }
 
 const RecipeListItem: React.FC<RecipeListItemProps> = ({ recipe, onFavoriteToggle }) => {
-  const [isFavorite, setIsFavorite] = useState(recipe.isFavorite); // Local state for immediate UI update
-  const { toast } = useToast(); // Hook for showing notifications
+  const [isFavorite, setIsFavorite] = useState(recipe.isFavorite);
+  const { toast } = useToast();
 
-  // Reason: Handles the click on the favorite star, calls the API, updates local state, and shows feedback.
   const handleToggleFavorite = async (e: MouseEvent<HTMLSpanElement>) => {
-    e.preventDefault(); // Prevent link navigation
-    e.stopPropagation(); // Stop event bubbling up to the Link
+    e.preventDefault();
+    e.stopPropagation();
 
-    const newIsFavorite = !isFavorite; // Determine the new state first
-    setIsFavorite(newIsFavorite); // Optimistically update the UI
+    const newIsFavorite = !isFavorite;
+    setIsFavorite(newIsFavorite);
 
-    // Notify parent component immediately if callback is provided
     if (onFavoriteToggle) {
       onFavoriteToggle(recipe.id, newIsFavorite);
     }
 
     try {
-      // Call the API to persist the change. We don't need the return value here.
       await recipeService.toggleFavorite(recipe.id);
 
-      // Show success toast based on the new state
       toast({
         title: "Success",
         description: `Recipe "${recipe.name}" ${newIsFavorite ? 'added to' : 'removed from'} favorites.`,
       });
     } catch (error) {
       console.error("Failed to toggle favorite status:", error);
-      // Revert the optimistic update on error
       setIsFavorite(!newIsFavorite);
       if (onFavoriteToggle) {
-        onFavoriteToggle(recipe.id, !newIsFavorite); // Also notify parent of revert
+        onFavoriteToggle(recipe.id, !newIsFavorite);
       }
       toast({
         title: "Error",
@@ -61,21 +52,16 @@ const RecipeListItem: React.FC<RecipeListItemProps> = ({ recipe, onFavoriteToggl
   };
 
   return (
-    // Replace div with Card, apply margin and hover effect
-    <Card className="mb-4 transition-shadow hover:shadow-md relative"> {/* Added relative positioning */}
-      {/* Link wraps the content, add group for hover effect */}
+    <Card className="mb-4 transition-shadow hover:shadow-md relative">
       <Link href={`/recipes/${recipe.id}`} className="group block">
-        <CardHeader className="flex flex-row justify-between items-start"> {/* Use flexbox for layout */}
-          <div> {/* Container for title and description */}
-            {/* Use CardTitle with Tailwind classes and hover effect */}
+        <CardHeader className="flex flex-row justify-between items-start">
+          <div>
             <CardTitle className="text-lg group-hover:underline">{recipe.name}</CardTitle>
-            {/* Use CardDescription for the description */}
             <CardDescription className="text-sm pt-1">{recipe.description}</CardDescription>
           </div>
-          {/* Favorite Indicator */}
           <span
             onClick={handleToggleFavorite}
-            className="cursor-pointer text-xl ml-4 pt-1 text-yellow-500 hover:text-yellow-400 transition-colors" // Adjusted styling and position
+            className="cursor-pointer text-xl ml-4 pt-1 text-yellow-500 hover:text-yellow-400 transition-colors"
             title={isFavorite ? "Remove from favorites" : "Add to favorites"}
             aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
             role="button"
@@ -83,7 +69,6 @@ const RecipeListItem: React.FC<RecipeListItemProps> = ({ recipe, onFavoriteToggl
             {isFavorite ? '★' : '☆'}
           </span>
         </CardHeader>
-        {/* Potential place for CardContent or CardFooter if more details/actions were needed */}
       </Link>
     </Card>
   );
