@@ -15,8 +15,9 @@ namespace RecipeBack.Services
 
             if (!string.IsNullOrWhiteSpace(name))
             {
-                // Reason: Filter recipes by name, case-insensitive.
-                query = query.Where(r => r.Name.ToLower().Contains(name.ToLower()));
+                string lowerSearchTerm = name.ToLower(); // convert search term to lower case
+                query = query.Where(r => (r.Name != null && r.Name.Contains(lowerSearchTerm, StringComparison.CurrentCultureIgnoreCase)) ||
+                                         (r.Description != null && r.Description.Contains(lowerSearchTerm, StringComparison.CurrentCultureIgnoreCase)));
             }
 
             return await query.ToListAsync();
